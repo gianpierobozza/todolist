@@ -29,7 +29,7 @@ Ext.define('ToDoList.view.TaskList', {
         items: [
             {
                 xtype: 'toolbar',
-                title: 'ToDoList by @GianpieroBozza',
+                title: 'Your To-Do-List',
                 docked: 'top',
                 ui: 'light',
                 items: [
@@ -59,7 +59,7 @@ Ext.define('ToDoList.view.TaskList', {
                         ui: 'decline',
                         iconMask: true,
                         text: 'Logout',
-                        action: '' //TODO
+                        action: 'logOffButtonTap'
                     }
                 ]
             }

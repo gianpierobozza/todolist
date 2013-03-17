@@ -142,8 +142,18 @@ app.get('/api', function (req, res, next) {
   res.send('API is running');
 });
 
-app.get('/', function(req,res) {
+app.get('/', function(req, res, next) {
     res.sendfile('index.html');
+});
+
+app.post('/login', function(req, res, next) {
+    res.json({'success':true,'message':'login successful','sessionToken':'aaa'});
+    //res.json({'success': false,'message':'login unsuccessful'});
+});
+
+app.post('/logoff', function(req, res, next) {
+    res.json({'success':true,'message':'logoff successful'});
+    //res.json({'success': false,'message':'logoff unsuccessful'});
 });
 
 // Launch server

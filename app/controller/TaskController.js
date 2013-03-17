@@ -9,10 +9,13 @@ Ext.define('ToDoList.controller.TaskController', {
             backToListButton: 'button[action=backToList]',
             createButton: 'button[action=createTask]',
             deleteButton: 'button[action=deleteTask]',
+            logInButton: 'button[action=logInButtonTap]',
+            logOffButton: 'button[action=logOffButtonTap]',
             saveButton: 'button[action=saveTask]',
             taskForm: '#taskForm',
             taskList: '#taskList',
-            taskToolbar: '#taskToolbar'
+            taskToolbar: '#taskToolbar',
+            loginView: '#toDoLogin'
         },
         control: {
             backToListButton: {
@@ -24,11 +27,20 @@ Ext.define('ToDoList.controller.TaskController', {
             deleteButton: {
                 tap: 'deleteTask'
             },
+            logInButton: {
+                tap: 'logInButtonTap'
+            },
+            logOffButton: {
+                tap: 'logOffButtonTap'
+            },
             saveButton: {
                 tap: 'saveTask'
             },
             taskList: {
                 disclose: 'onDisclose'
+            },
+            logInView: {
+                signInCommand: 'onSignInCommand'
             }
         }
     },
@@ -71,6 +83,39 @@ Ext.define('ToDoList.controller.TaskController', {
         });
         
     },
+    logInButtonTap: function () {
+        var toDoLogin = Ext.getCmp('toDoLogin');
+        var usernameField = toDoLogin.down('#userNameTextField'),
+            passwordField = toDoLogin.down('#passwordTextField'),
+            label = toDoLogin.down('#signInFailedLabel');
+        label.hide();
+        var username = usernameField.getValue(),
+            password = passwordField.getValue();
+        var task = Ext.create('Ext.util.DelayedTask', function () {
+            label.setHtml('');
+            ToDoList.app.getController('TaskController').onSignInCommand(toDoLogin, username, password);
+            usernameField.setValue('');
+            passwordField.setValue('');
+        });
+        task.delay(500);
+    },
+    logOffButtonTap: function () {
+        var controller = this;
+        Ext.Ajax.request({
+            url: '/logoff',
+            method: 'post',
+            params: {
+                sessionToken: controller.sessionToken
+            },
+            success: function (response) {
+                var logoffResponse = Ext.JSON.decode(response.responseText);
+                if (logoffResponse.success === true) {
+                    controller.sessionToken = null;
+                }
+            }
+        });
+        Ext.Viewport.animateActiveItem(this.getLoginView(), this.getSlideRightTransition());
+    },
     saveTask: function (button, e, eOpts) {
         var formValues = this.getTaskForm().getValues();
         var taskStore = Ext.getStore('TaskStore').load();
@@ -102,12 +147,64 @@ Ext.define('ToDoList.controller.TaskController', {
         Ext.getCmp('taskFormDeleteFieldset').show();
         Ext.Viewport.setActiveItem(this.getTaskForm().setRecord(record));
     },
-    slideRight: function() {
-        Ext.Viewport.getLayout().setAnimation({
-            type: 'slide',
-            direction: 'right'
+    onSignInCommand: function (view, username, password) {
+        var controller = this,
+            loginView = controller.getLoginView();
+        if (username.length === 0 || password.length === 0) {
+            loginView.showSignInFailedMessage('Please enter your username and password.');
+            return;
+        }
+        loginView.setMasked({
+            xtype: 'loadmask',
+            message: 'Signing In...',
+            indicator:true
         });
-        this.getTaskForm().reset();
-        Ext.Viewport.setActiveItem(this.getTaskList());
+        Ext.Ajax.request({
+            url: '/login',
+            method: 'post',
+            params: {
+                user: username,
+                pwd: password
+            },
+            success: function (response) {
+                var loginResponse = Ext.JSON.decode(response.responseText);
+                if (loginResponse.success === true) {
+                    controller.sessionToken = loginResponse.sessionToken;
+                    controller.signInSuccess();
+                } else {
+                    controller.signInFailure(loginResponse.message);
+                }
+            },
+            failure: function (response) {
+                controller.sessionToken = null;
+                controller.signInFailure('Login failed. Please try again later.');
+            }
+        });
+    },
+    signInSuccess: function () {
+        var loginView = this.getLoginView();
+        taskList = this.getTaskList();
+        loginView.setMasked(false);
+        Ext.Viewport.animateActiveItem(taskList, this.getSlideLeftTransition());
+    },
+    signInFailure: function (message) {
+        var loginView = this.getLoginView();
+        loginView.showSignInFailedMessage(message);
+        loginView.setMasked(false);
+    },
+    getSlideLeftTransition: function () {
+        return { type: 'slide', direction: 'left' };
+    },
+    getSlideRightTransition: function () {
+        return { type: 'slide', direction: 'right' };
+    },    
+    slideRight: function() {
+        taskForm = this.getTaskForm();
+        var task = Ext.create('Ext.util.DelayedTask', function () {
+            taskForm.reset();
+            taskForm.getScrollable().getScroller().scrollTo(0,0);
+        });
+        task.delay(500);
+        Ext.Viewport.animateActiveItem(this.getTaskList(), this.getSlideRightTransition());
     }
 });

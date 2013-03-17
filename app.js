@@ -22,6 +22,7 @@ Ext.application({
     ],
 
     views: [
+        'ToDoLogin',
         'TaskList',
 	'TaskForm'
     ],
@@ -45,11 +46,9 @@ Ext.application({
     },
 
     launch: function() {
-        // Destroy the #appLoadingIndicator element
         Ext.fly('appLoadingIndicator').destroy();
-
-        // Initialize the main view
         Ext.Viewport.add([
+            Ext.create('ToDoList.view.ToDoLogin'),
             Ext.create('ToDoList.view.TaskList'),
             Ext.create('ToDoList.view.TaskForm')
         ]);
