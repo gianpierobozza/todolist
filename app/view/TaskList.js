@@ -1,9 +1,10 @@
-var titleTpl = new Ext.XTemplate(
+var listItemTpl = new Ext.XTemplate(
     '<div class="task completed_{c}">\n\
         {t}\n\
-    </div>'
+        <tpl if="st"!=\'\' && "et"!=\'\'> from {st} to {et}</tpl>\n\
+    </div>\n\
+    <div class="deleteplaceholder"></div>'
 );
-
 Ext.define('ToDoList.view.TaskList', {
     extend: 'Ext.dataview.List',
     xtype: 'tasklist',
@@ -16,14 +17,18 @@ Ext.define('ToDoList.view.TaskList', {
         displayField: 'title',
         id: 'taskList',
         store: 'TaskStore',
-        itemTpl: titleTpl,
+        itemTpl: listItemTpl,
+        selectedCls: '',
         onItemDisclosure: true,
-        emptyText: '<p align="center" class="instructions">No tasks here yet.<br/>Tap the "+" button to create one.</p>',
+        emptyText: '<p align="center" class="instructions">Nothing to do here yet.<br/>Tap the "Add" button to create one.</p>',
         grouped: true,
         plugins: [
             {
                 xclass: 'Ext.plugin.PullRefresh',
-                pullRefreshText: 'Pull down to refresh'
+                pullRefreshText: 'Pull down to refresh',
+                refreshFn: function() {
+                    Ext.getStore('TaskStore').load();
+                }
             }
         ],
         items: [
@@ -33,6 +38,15 @@ Ext.define('ToDoList.view.TaskList', {
                 docked: 'top',
                 ui: 'light',
                 items: [
+                    {
+                        xtype: 'button',
+                        name: 'refreshButton',
+                        cls: 'normalButtonOverride',
+                        text: 'Refresh',
+                        minWidth: '100px',
+                        badgeText: '',
+                        action: 'refreshList'
+                    },
                     {
                         xtype: 'spacer'
                     },
@@ -59,7 +73,7 @@ Ext.define('ToDoList.view.TaskList', {
                         ui: 'decline',
                         iconMask: true,
                         text: 'Logout',
-                        action: 'logOffButtonTap'
+                        action: 'logOutButtonTap'
                     }
                 ]
             }

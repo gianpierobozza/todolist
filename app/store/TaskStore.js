@@ -6,12 +6,26 @@ Ext.define('ToDoList.store.TaskStore', {
     config: {
         model: 'ToDoList.model.TaskModel',
         autoSync: true,
-        autoLoad: true,
         storeId: 'TaskStore',
-        sorters: ['dd', 'st', 't'], // date, start time, title
-        grouper: function(record) {
-            if (record && record.get("dd")) {
+        grouper: {
+            sortProperty: 'dd',
+            groupFn: function(record) {
                 return record.get("dd").toDateString();
+            }
+        },
+        listeners: {
+            load : function(){
+                var taskStore = Ext.getStore('TaskStore');
+                taskStore.filter([
+                    { 
+                        filterFn: function(item) {
+                            return item.get('c') === false;
+                        }
+                    }
+                ]);
+                var refreshButton = Ext.ComponentQuery.query('button[name="refreshButton"]').pop();
+                refreshButton.setBadgeText(taskStore.getData().items.length);
+                taskStore.clearFilter();
             }
         }
     }

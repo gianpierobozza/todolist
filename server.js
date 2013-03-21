@@ -1,14 +1,13 @@
 var application_root = __dirname,
-    express = require("express"),
-    path = require("path"),
-    mongoose = require('mongoose');
+    express = require('express'),
+    path = require('path'),
+    mongoose = require('mongoose'),
+    cfg = require('./server-config')
 
-var app = express();
+var server = express();
 
 // Database
-
-mongoose.connect('mongodb://192.168.1.111:27017/todolistdb', function(err) {
-//mongoose.connect('mongodb://localhost:27017/todolistdb', function(err) {
+mongoose.connect('mongodb://'+cfg.mongo.uri+':'+cfg.mongo.port+'/'+cfg.mongo.db, function(err) {
     if (err) throw err;
 });
 
@@ -26,34 +25,43 @@ var allowCrossDomain = function(req, res, next) {
       next();
     }
 };
-app.configure(function () {
-	app.use(allowCrossDomain);
-	app.use(express.bodyParser());
-	app.use(express.methodOverride());
-	app.use(app.router);
-  	app.use('touch', express.static(path.join(application_root, 'touch')));
-  	app.use('/', express.static(application_root));
-  	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+server.configure(function () {
+	server.use(allowCrossDomain);
+	server.use(express.bodyParser());
+	server.use(express.methodOverride());
+	server.use(server.router);
+  	server.use('touch', express.static(path.join(application_root, 'touch')));
+  	server.use('/', express.static(application_root));
+  	server.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
 var toDoSchema = new mongoose.Schema({
-    u_id: String,
-    t: String,
-    d: String,
-    dd: Date,
-    st: String,
-    et: String,
-    ad: Boolean,
-    c: Boolean
-}, {
-    collection: 'todo'
+    u_id: String,   // user_id
+    t: String,      // title
+    d: String,      // description
+    dd: Date,       // due_date
+    st: String,     // start_date
+    et: String,     // end_date
+    ad: Boolean,    // all_day
+    c: Boolean      // completed
 });
 
-var toDoModel = mongoose.model('todo', toDoSchema);
+var toDoModel = mongoose.model('todos', toDoSchema);
+
+var userSchema = new mongoose.Schema({
+    u_id: String,   // user_id
+    n: String,      // name
+    s: String,      // surname
+    u: String,      // username
+    p: String,      // password
+    e: String       // email
+});
+
+var userModel = mongoose.model('users', userSchema);
 
 // GET - get all todos
-app.get('/api/todos', function (req, res, next){
-	console.log("get - all");
+server.get('/api/todos', function (req, res, next){
+    console.log("get - all");
     return toDoModel.find({'u_id': req.query.u_id}, function (err, todos) {
         if (!err) {
             return res.jsonp({'todos':todos});
@@ -64,11 +72,11 @@ app.get('/api/todos', function (req, res, next){
 });
 
 // POST - create a single todo
-app.post('/api/todos', function (req, res, next){
-	console.log("post - create");
-    var todo;
+server.post('/api/todos', function (req, res, next){
+    console.log("post - create");
     console.log("POST: ");
     console.log(req.body);
+    var todo;
     todo = new toDoModel({
         u_id: req.query.u_id,
         t: req.body.t,
@@ -90,8 +98,8 @@ app.post('/api/todos', function (req, res, next){
 });
 
 // GET - get 1 todo by _id
-app.get('/api/todos/:id', function (req, res, next){
-	console.log("get - one");
+server.get('/api/todos/:id', function (req, res, next){
+    console.log("get - one");
     return toDoModel.findById(req.params.id, function (err, todo) {
         if (!err) {
             return res.jsonp({'todos':todo});
@@ -102,8 +110,8 @@ app.get('/api/todos/:id', function (req, res, next){
 });
 
 // PUT - update a todo by _id
-app.put('/api/todos/:id', function (req, res, next){
-	console.log("put - update id: " + req.params.id);
+server.put('/api/todos/:id', function (req, res, next){
+    console.log("put - update id: " + req.params.id);
     return toDoModel.findById(req.params.id, function (err, todo) {
         todo.t = req.body.t;
         todo.d = req.body.d;
@@ -124,8 +132,8 @@ app.put('/api/todos/:id', function (req, res, next){
 });
 
 // DELETE - delete a todo by _id
-app.delete('/api/todos/:id', function (req, res, next){
-	console.log('delete');
+server.delete('/api/todos/:id', function (req, res, next){
+    console.log('delete');
     return toDoModel.findById(req.params.id, function (err, todo) {
         return todo.remove(function (err) {
             if (!err) {
@@ -138,25 +146,44 @@ app.delete('/api/todos/:id', function (req, res, next){
     });
 });
 
-app.get('/api', function (req, res, next) {
-  res.send('API is running');
+server.get('/api', function (req, res, next) {
+    res.send('API is running');
 });
 
-app.get('/', function(req, res, next) {
+server.get('/', function(req, res, next) {
     res.sendfile('index.html');
 });
 
-app.post('/login', function(req, res, next) {
-    res.json({'success':true,'message':'login successful','sessionToken':'aaa'});
+server.post('/login', function(req, res, next) {
+    console.log("post - login");
+    console.log("POST: ");
+    console.log(req.body);
+    return userModel.find({'u': req.body.user}, function (err, users) {
+        if (!err) {
+            if(users[0]) {
+                if (users[0].p == req.body.pwd) {
+                    return res.json({'success':true,'message':'login successful','sessionToken':'aaa'});
+                }
+                else {
+                    return res.json({'success': false,'message':'wrong password'});
+                }
+            } else {
+                return res.json({'success': false,'message':'user not found'});
+            }
+        } else {
+            return res.json({'success': false,'message':'login error'});
+        }
+    });
+    //res.json({'success':true,'message':'login successful','sessionToken':'aaa'});
     //res.json({'success': false,'message':'login unsuccessful'});
 });
 
-app.post('/logoff', function(req, res, next) {
+server.post('/logout', function(req, res, next) {
     res.json({'success':true,'message':'logoff successful'});
     //res.json({'success': false,'message':'logoff unsuccessful'});
 });
 
 // Launch server
 
-app.listen(4242);
-console.log('Listening on port 4242');
+server.listen(cfg.web.port);
+console.log('Listening on port ' + cfg.web.port);

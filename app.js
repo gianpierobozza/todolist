@@ -48,9 +48,7 @@ Ext.application({
     launch: function() {
         Ext.fly('appLoadingIndicator').destroy();
         Ext.Viewport.add([
-            Ext.create('ToDoList.view.ToDoLogin'),
-            Ext.create('ToDoList.view.TaskList'),
-            Ext.create('ToDoList.view.TaskForm')
+            Ext.create('ToDoList.view.ToDoLogin')
         ]);
     },
 
