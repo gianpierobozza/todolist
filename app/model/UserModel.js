@@ -13,8 +13,8 @@ Ext.define('ToDoList.model.UserModel', {
         idProperty: '_id',
         proxy: {
             type: 'rest',
-            //url: 'http://192.168.1.111:4242/api/users/',
-            url: 'http://localhost:4242/api/users/',
+            url: 'http://192.168.1.111:4242/api/users/',
+            //url: 'http://localhost:4242/api/users/',
             callbackKey: 'callback',
             reader: {
                 type: 'json',

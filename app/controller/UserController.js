@@ -60,8 +60,8 @@ Ext.define('ToDoList.controller.UserController', {
     logOutTap: function () {
         var controller = this;
         Ext.Ajax.request({
-            //url: '/logout',
-            url: 'http://localhost:4242/logout',
+            url: '/logout',
+            //url: 'http://localhost:4242/logout',
             method: 'post',
             params: {
             },
@@ -87,8 +87,8 @@ Ext.define('ToDoList.controller.UserController', {
             indicator:true
         });
         Ext.Ajax.request({
-            //url: '/login',
-            url: 'http://localhost:4242/login',
+            url: '/login',
+            //url: 'http://localhost:4242/login',
             method: 'post',
             params: {
                 user: username,
@@ -127,24 +127,14 @@ Ext.define('ToDoList.controller.UserController', {
         taskController.getTaskList().getStore().load();
     },
     userProfileTap: function () {
+        var controller = this;
         if (this.getUserProfileView() == undefined) {
             Ext.Viewport.add([Ext.create('ToDoList.view.UserProfile')]);
         }
-        var userStore = Ext.create('ToDoList.store.UserStore', {
-            model: 'ToDoList.model.UserModel'
+        Ext.ModelManager.getModel('ToDoList.model.UserModel').load(ToDoList.util.LoggedUser.getUsername(),{
+            success: function(user) {
+                Ext.Viewport.animateActiveItem(controller.getUserProfileView().setRecord(user), controller.getSlideUpTransition());
+            }
         });
-        console.log(userStore.load(ToDoList.util.LoggedUser.getUsername()));
-        Ext.Viewport.animateActiveItem(this.getUserProfileView(), this.getSlideUpTransition());
-        /*var loginView = this.getLoginView(),
-            taskController = this.getApplication().getController('TaskController');
-        loginView.setMasked(false);
-        if (taskController.getTaskList() == undefined) {
-            Ext.Viewport.add([Ext.create('ToDoList.view.TaskList')]);
-        }
-        if (taskController.getTaskForm() == undefined) {
-            Ext.Viewport.add([Ext.create('ToDoList.view.TaskForm')]);
-        }
-        Ext.Viewport.animateActiveItem(taskController.getTaskList(), this.getSlideLeftTransition());
-        taskController.getTaskList().getStore().load();*/
     }
 });
