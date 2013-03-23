@@ -14,12 +14,8 @@ Ext.define('ToDoList.view.ToDoLogin', {
         items: [
             {
                 xtype: 'image',
-                src: Ext.Viewport.getOrientation() === 'portrait' ?
-                    'resources/images/login.png' :
-                    'resources/images/login-small.png',
-                style: Ext.Viewport.getOrientation() === 'portrait' ?
-                    'width:80px;height:80px;margin:auto' :
-                    'width:40px;height:40px;margin:auto'
+                src: 'resources/images/login.png',
+                style: 'width:80px;height:80px;margin:auto'
             },
             {
                 xtype: 'label',
