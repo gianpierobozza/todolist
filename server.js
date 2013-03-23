@@ -175,7 +175,7 @@ server.post('/login', function(req, res, next) {
         if (!err) {
             if(users[0]) {
                 if (users[0].p == req.body.pwd) {
-                    return res.json({'success':true,'message':'login successful','sessionToken':'aaa'});
+                    return res.json({'success':true,'message':'login successful','user_id':users[0].u_id});
                 }
                 else {
                     return res.json({'success': false,'message':'wrong password'});

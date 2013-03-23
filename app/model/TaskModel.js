@@ -17,9 +17,6 @@ Ext.define('ToDoList.model.TaskModel', {
             type: 'rest',
             url: 'http://192.168.1.111:4242/api/todos/',
             //url: 'http://localhost:4242/api/todos/',
-            extraParams: {
-                u_id: 1 // DEFAULT User
-            },
             callbackKey: 'callback',
             reader: {
                 type: 'json',

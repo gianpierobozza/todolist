@@ -16,6 +16,9 @@ Ext.define('ToDoList.store.TaskStore', {
         listeners: {
             load : function(){
                 var taskStore = Ext.getStore('TaskStore');
+                taskStore.getProxy().setExtraParams({
+                    u_id: ToDoList.util.LoggedUser.getUserId()
+                });
                 taskStore.filter([
                     { 
                         filterFn: function(item) {

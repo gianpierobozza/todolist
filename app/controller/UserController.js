@@ -69,6 +69,7 @@ Ext.define('ToDoList.controller.UserController', {
                 var logoutResponse = Ext.JSON.decode(response.responseText);
                 if (logoutResponse.success === true) {
                     ToDoList.util.LoggedUser.setUsername('');
+                    ToDoList.util.LoggedUser.setUserId('');
                 }
             }
         });
@@ -98,6 +99,7 @@ Ext.define('ToDoList.controller.UserController', {
                 var loginResponse = Ext.JSON.decode(response.responseText);
                 if (loginResponse.success === true) {
                     ToDoList.util.LoggedUser.setUsername(username);
+                    ToDoList.util.LoggedUser.setUserId(loginResponse.user_id);
                     controller.signInSuccess();
                 } else {
                     controller.signInFailure(loginResponse.message);
@@ -124,6 +126,9 @@ Ext.define('ToDoList.controller.UserController', {
             Ext.Viewport.add([Ext.create('ToDoList.view.TaskForm')]);
         }
         Ext.Viewport.animateActiveItem(taskController.getTaskList(), this.getSlideLeftTransition());
+        taskController.getTaskList().getStore().getProxy().setExtraParams({
+            u_id: ToDoList.util.LoggedUser.getUserId()
+        });
         taskController.getTaskList().getStore().load();
     },
     userProfileTap: function () {

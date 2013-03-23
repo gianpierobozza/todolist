@@ -183,8 +183,7 @@ Ext.define('ToDoList.controller.TaskController', {
         }
         var taskStore = Ext.getStore('TaskStore');
         if (formValues._id == '') {
-            // create
-            formValues.u_id = 1; // DEFAULT USER!!!!!!
+            formValues.u_id = ToDoList.util.LoggedUser.getUserId();
         }
         var todoElem = Ext.create('ToDoList.model.TaskModel', formValues);
         todoElem.save({
