@@ -8,6 +8,7 @@ log/*
 public/assets
 tmp
 touch/
+.sencha/
 resources/sass/.sass-cache
 .project
 .bundle
