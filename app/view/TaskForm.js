@@ -6,8 +6,7 @@ Ext.define('ToDoList.view.TaskForm', {
         'Ext.form.FieldSet',
         'Ext.field.DatePicker',
         'Ext.field.Hidden',
-        'Ext.field.Toggle',
-        'Ext.ux.TimePickerField'
+        'Ext.field.Toggle'
     ],
     config: {
         id: 'taskForm',
@@ -78,7 +77,9 @@ Ext.define('ToDoList.view.TaskForm', {
                         name: 'dd',
                         placeHolder: 'dd/mm/yyyy',
                         dateFormat: 'D d M Y',
+                        value: new Date(),
                         picker: {
+                            useTitles: true,
                             slotOrder: [
                                 'day',
                                 'month',
@@ -88,19 +89,13 @@ Ext.define('ToDoList.view.TaskForm', {
                             yearTo: (new Date()).getFullYear() + 10
                         }
                     }, {
-                        xtype: "timepickerfield",
-                        startTime: 0000,
-                        endTime: 2330,
-                        increment: 30,
+                        xtype: 'textfield',
                         id: 'startTimeField',
                         label: 'Start time',
                         name: 'st',
                         placeHolder: 'Enter start time'
                     }, {
-                        xtype: 'timepickerfield',
-                        startTime: 0000,
-                        endTime: 2330,
-                        increment: 30,
+                        xtype: 'textfield',
                         id: 'endTimeField',
                         label: 'End time',
                         name: 'et',

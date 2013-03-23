@@ -146,6 +146,19 @@ server.delete('/api/todos/:id', function (req, res, next){
     });
 });
 
+// GET - get 1 user by n (username)
+server.get('/api/users/:u', function (req, res, next){
+    console.log("get - user");
+	console.log(req.params);
+    return userModel.find({'u': req.params.u}, function (err, user) {
+        if (!err) {
+            return res.jsonp({'users':user});
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
 server.get('/api', function (req, res, next) {
     res.send('API is running');
 });

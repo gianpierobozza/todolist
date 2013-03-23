@@ -1,6 +1,6 @@
 var listItemTpl = new Ext.XTemplate(
     '<div class="task completed_{c}">\n\
-        {t}\n\
+        <span>{t}</span>\n\
         <tpl if="st"!=\'\' && "et"!=\'\'> from {st} to {et}</tpl>\n\
     </div>\n\
     <div class="deleteplaceholder"></div>'
@@ -70,10 +70,17 @@ Ext.define('ToDoList.view.TaskList', {
                     },
                     {
                         xtype: 'button',
+                        ui: 'normal',
+                        iconMask: true,
+                        iconCls: 'user',
+                        action: 'userProfileTap'
+                    },
+                    {
+                        xtype: 'button',
                         ui: 'decline',
                         iconMask: true,
                         text: 'Logout',
-                        action: 'logOutButtonTap'
+                        action: 'logOutTap'
                     }
                 ]
             }

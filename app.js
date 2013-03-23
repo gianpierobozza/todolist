@@ -10,21 +10,26 @@ Ext.application({
 
     requires: [
         'Ext.MessageBox',
-	'ToDoList.store.TaskStore'
+	'ToDoList.store.TaskStore',
+        'ToDoList.store.UserStore',
+        'ToDoList.util.LoggedUser'
     ],
 
     controllers: [
-        'TaskController'	
+        'TaskController',
+        'UserController'
     ],
 
     stores: [
-        'TaskStore'
+        'TaskStore',
+        'UserStore'
     ],
 
     views: [
         'ToDoLogin',
         'TaskList',
-	'TaskForm'
+	'TaskForm',
+        'UserProfile'
     ],
 
     icon: {

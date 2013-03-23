@@ -1,10 +1,13 @@
+.task.completed_true span {
+    color: green;
+}
 .task.completed_false:before {
     content: "! ";
-    color: red;
+    color: #D41E3F;
     font-size: bold;
 }
-.task.completed_true {
-    color: green;
+.task.completed_false span {
+    color: #D41E3F;
 }
 .signInFailedLabel {
     color:#990000;

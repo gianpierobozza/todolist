@@ -56,7 +56,7 @@ Ext.define('ToDoList.view.ToDoLogin', {
                 ui: 'action',
                 padding: '10px',
                 text: 'Log In',
-                action: 'logInButtonTap'
+                action: 'logInTap'
             }
         ]
     },
