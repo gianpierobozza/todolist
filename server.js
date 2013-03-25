@@ -112,14 +112,14 @@ server.get('/api/todos/:id', function (req, res, next){
 // PUT - update a todo by _id
 server.put('/api/todos/:id', function (req, res, next){
     console.log("put - update id: " + req.params.id);
-    return toDoModel.findById(req.params.id, function (err, todo) {
+	return toDoModel.findById(req.params.id, function (err, todo) {
         todo.t = req.body.t;
         todo.d = req.body.d;
-        todo.dd = new Date(req.body.dd*1000), // convert the date to ISO Date
-        todo.st = req.body.st,
-        todo.et = req.body.et,
-        todo.ad =  req.body.ad,
-        todo.c = req.body.c
+        todo.dd = new Date(req.body.dd*1000); // convert the date to ISO Date
+        todo.st = req.body.st;
+        todo.et = req.body.et;
+        todo.ad =  req.body.ad;
+        todo.c = req.body.c;
         return todo.save(function (err, todo) {
             if (!err) {
                 console.log("updated");
@@ -156,6 +156,26 @@ server.get('/api/users/:u', function (req, res, next){
         } else {
             return console.log(err);
         }
+    });
+});
+
+// PUT - update the user by _id
+server.put('/api/users/:id', function (req, res, next){
+    console.log("put - update _id: " + req.params.id);
+	return userModel.findById(req.params.id, function (err, user) {
+        user.n = req.body.n;
+        user.s = req.body.s;
+        user.p = req.body.p;
+        user.e = req.body.e;
+        user.c = req.body.c;
+        return user.save(function (err, user) {
+            if (!err) {
+                console.log("updated");
+            } else {
+                console.log(err);
+            }
+            return res.jsonp({'users':user});
+        });
     });
 });
 

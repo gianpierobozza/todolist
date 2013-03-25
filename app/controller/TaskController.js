@@ -54,11 +54,11 @@ Ext.define('ToDoList.controller.TaskController', {
     },
     clearForm: function() {
         var taskForm = this.getTaskForm(),
-            task = Ext.create('Ext.util.DelayedTask', function () {
+            delayedTask = Ext.create('Ext.util.DelayedTask', function () {
             taskForm.destroy();
             Ext.Viewport.add([Ext.create('ToDoList.view.TaskForm')]);
         });
-        task.delay(500);
+        delayedTask.delay(750);
     },
     createTask: function (button, e, eOpts) {
         this.getTaskToolbar().setTitle('Create Task');
@@ -156,11 +156,17 @@ Ext.define('ToDoList.controller.TaskController', {
         var taskStore = Ext.getStore('TaskStore').load();
     },
     saveTask: function (button, e, eOpts) {
-        var form = this.getTaskForm(),
+        var controller = this,
+            form = this.getTaskForm(),
             formValues = form.getValues(),
             formFieldSet = Ext.getCmp('mainFieldSet'),
             isValid = true,
             emptyMessage = '<br/><span class="requiredField">This fields are required</span>';
+        form.setMasked({
+            xtype: 'loadmask',
+            message: 'Saving...',
+            indicator:true
+        });
         form.getFieldsAsArray().forEach(function(field) {
             field.setLabelCls('');
             formFieldSet.setInstructions(formFieldSet.getInstructions().replace(emptyMessage, ''));
@@ -188,10 +194,17 @@ Ext.define('ToDoList.controller.TaskController', {
         var todoElem = Ext.create('ToDoList.model.TaskModel', formValues);
         todoElem.save({
             success: function() {
+                controller.clearForm();
                 taskStore.load();
+                form.setMasked(false);
+                Ext.Viewport.animateActiveItem(controller.getTaskList(), controller.getSlideRightTransition());
+            },
+            failure: function() {
+                form.setMasked(false);
+                Ext.Msg.alert('Error', 'There was an error saving this activity.. Sorry!', Ext.emptyFn);
+                controller.clearForm();
+                Ext.Viewport.animateActiveItem(controller.getTaskList(), controller.getSlideRightTransition());
             }
         });
-        this.clearForm();
-        Ext.Viewport.animateActiveItem(this.getTaskList(), this.getSlideRightTransition());
     }
 });

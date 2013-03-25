@@ -35,7 +35,7 @@ Ext.define('ToDoList.view.UserProfile', {
                         ui: 'action',
                         iconMask: true,
                         text: 'Save',
-                        action: 'saveUser'
+                        action: 'saveUserInfo'
                     }
                 ]
             },
@@ -45,6 +45,11 @@ Ext.define('ToDoList.view.UserProfile', {
                 instructions: 'User Details',
                 title: 'User Details',
                 items: [
+                    {
+                        xtype: 'hiddenfield',
+                        id: 'userDbId',
+                        name: '_id'
+                    },
                     {
                         xtype: 'hiddenfield',
                         id: 'userProfileId',

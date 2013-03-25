@@ -10,9 +10,11 @@ Ext.define('ToDoList.controller.UserController', {
         refs: {
             logInButton: 'button[action=logInTap]',
             logOutButton: 'button[action=logOutTap]',
+            returnToListButton: 'button[action=returnToList]',
+            saveUserInfoButton: 'button[action=saveUserInfo]',
             userProfileButton: 'button[action=userProfileTap]',
             loginView: '#toDoLogin',
-            userProfileView: '#userProfile'
+            userProfile: '#userProfile'
         },
         control: {
             logInButton: {
@@ -21,13 +23,26 @@ Ext.define('ToDoList.controller.UserController', {
             logOutButton: {
                 tap: 'logOutTap'
             },
-            logInView: {
-                signInCommand: 'onSignInCommand'
+            returnToListButton: {
+                tap: 'returnToList'
+            },
+            saveUserInfoButton: {
+                tap: 'saveUserInfo'
             },
             userProfileButton: {
                 tap: 'userProfileTap'
+            },
+            logInView: {
+                signInCommand: 'onSignInCommand'
             }
         }
+    },
+    clearForm: function() {
+        var userProfile = this.getUserProfile(),
+            delayedTask = Ext.create('Ext.util.DelayedTask', function () {
+            userProfile.destroy();
+        });
+        delayedTask.delay(750);
     },
     getSlideLeftTransition: function () {
         return { type: 'slide', direction: 'left' };
@@ -49,19 +64,18 @@ Ext.define('ToDoList.controller.UserController', {
         label.hide();
         var username = usernameField.getValue(),
             password = passwordField.getValue();
-        var task = Ext.create('Ext.util.DelayedTask', function () {
+        var delayedTask = Ext.create('Ext.util.DelayedTask', function () {
             label.setHtml('');
             ToDoList.app.getController('UserController').onSignInCommand(toDoLogin, username, password);
             usernameField.setValue('');
             passwordField.setValue('');
         });
-        task.delay(500);
+        delayedTask.delay(750);
     },
     logOutTap: function () {
         var controller = this;
         Ext.Ajax.request({
             url: '/logout',
-            //url: 'http://localhost:4242/logout',
             method: 'post',
             params: {
             },
@@ -89,7 +103,6 @@ Ext.define('ToDoList.controller.UserController', {
         });
         Ext.Ajax.request({
             url: '/login',
-            //url: 'http://localhost:4242/login',
             method: 'post',
             params: {
                 user: username,
@@ -107,6 +120,62 @@ Ext.define('ToDoList.controller.UserController', {
             },
             failure: function (response) {
                 controller.signInFailure('Login failed. Please try again later.');
+            }
+        });
+    },
+    returnToList: function (button, e, eOpts) {
+        var controller = this,
+            taskController = this.getApplication().getController('TaskController');
+        Ext.Msg.confirm('Back to Home', 'Do you wish to continue? Unsaved changes will be lost forever..', function(button){
+            if (button == 'yes') {
+                controller.clearForm();
+                Ext.Viewport.animateActiveItem(taskController.getTaskList(), controller.getSlideDownTransition());
+            } else {
+                return false;
+            }
+        });
+    },
+    saveUserInfo: function (button, e, eOpts) {
+        var controller = this,
+            taskController = this.getApplication().getController('TaskController'),
+            form = this.getUserProfile(),
+            formValues = form.getValues(),
+            formFieldSet = Ext.getCmp('userFieldSet'),
+            isValid = true,
+            emptyMessage = '<br/><span class="requiredField">This fields are required</span>';
+        form.setMasked({
+            xtype: 'loadmask',
+            message: 'Saving...',
+            indicator:true
+        });
+        form.getFieldsAsArray().forEach(function(field) {
+            field.setLabelCls('');
+            formFieldSet.setInstructions(formFieldSet.getInstructions().replace(emptyMessage, ''));
+        });
+        form.getFieldsAsArray().forEach(function(field) {
+            if (!field.isHidden() && !field.isDisabled()) {
+                if (field.isXType('textfield') && field.getValue() == '') {
+                    isValid = false;
+                    field.setLabelCls('requiredField');
+                }
+            }
+        });
+        if (!isValid) {
+            formFieldSet.setInstructions(formFieldSet.getInstructions()+emptyMessage);
+            return false;
+        }
+        var user = Ext.create('ToDoList.model.UserModel', formValues);
+        user.save({
+            success: function() {
+                controller.clearForm();
+                form.setMasked(false);
+                Ext.Viewport.animateActiveItem(taskController.getTaskList(), controller.getSlideDownTransition());
+            },
+            failure: function() {
+                form.setMasked(false);
+                Ext.Msg.alert('Error', 'There was an error saving your details.. Sorry!', Ext.emptyFn);
+                controller.clearForm();
+                Ext.Viewport.animateActiveItem(taskController.getTaskList(), controller.getSlideDownTransition());
             }
         });
     },
@@ -133,12 +202,12 @@ Ext.define('ToDoList.controller.UserController', {
     },
     userProfileTap: function () {
         var controller = this;
-        if (this.getUserProfileView() == undefined) {
+        if (this.getUserProfile() == undefined) {
             Ext.Viewport.add([Ext.create('ToDoList.view.UserProfile')]);
         }
         Ext.ModelManager.getModel('ToDoList.model.UserModel').load(ToDoList.util.LoggedUser.getUsername(),{
             success: function(user) {
-                Ext.Viewport.animateActiveItem(controller.getUserProfileView().setRecord(user), controller.getSlideUpTransition());
+                Ext.Viewport.animateActiveItem(controller.getUserProfile().setRecord(user), controller.getSlideUpTransition());
             }
         });
     }

@@ -15,8 +15,7 @@ Ext.define('ToDoList.model.TaskModel', {
         idProperty: '_id',
         proxy: {
             type: 'rest',
-            url: 'http://192.168.1.111:4242/api/todos/',
-            //url: 'http://localhost:4242/api/todos/',
+            url: '/api/todos/',
             callbackKey: 'callback',
             reader: {
                 type: 'json',
