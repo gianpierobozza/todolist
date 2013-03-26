@@ -26,7 +26,7 @@ running [Raspbian "Wheezy"](http://www.raspbian.org/).
  * App how-to-use screen
  * Re-factor server.js into multiple and human readable files
  * Register new user and better login session managment.
- * "Maybe" Facebook, Twetter, Google login
+ * "Maybe" Facebook, Twitter, Google login
  * Update development environment (aka the Raspberry PI):
   * node.js 0.10.*
   * MongoDB 2.4.* 
